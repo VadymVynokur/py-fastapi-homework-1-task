@@ -14,7 +14,7 @@ async def get_movies(
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=20),
     db: AsyncSession = Depends(get_db),
-):
+) -> MovieListResponseSchema:
     total_stmt = select(func.count(MovieModel.id))
     total_items = (await db.execute(total_stmt)).scalar_one()
 
@@ -33,8 +33,8 @@ async def get_movies(
     base_url = "/api/v1/theater/movies"
     return {
         "movies": movies,
-        "prev_page": f"{base_url}?page={page-1}&per_page={per_page}" if page > 1 else None,
-        "next_page": f"{base_url}?page={page+1}&per_page={per_page}" if page < total_pages else None,
+        "prev_page": f"{base_url}?page={page - 1}&per_page={per_page}" if page > 1 else None,
+        "next_page": f"{base_url}?page={page + 1}&per_page={per_page}" if page < total_pages else None,
         "total_pages": total_pages,
         "total_items": total_items,
     }
@@ -44,7 +44,7 @@ async def get_movies(
 async def get_movie_by_id(
     movie_id: int,
     db: AsyncSession = Depends(get_db),
-):
+) -> MovieDetailResponseSchema:
     stmt = select(MovieModel).where(MovieModel.id == movie_id)
     movie = (await db.execute(stmt)).scalar_one_or_none()
 
